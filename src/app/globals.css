@@ -1,1 +1,12 @@
 @import "tailwindcss";
+
+@theme {
+  --color-finca-black: #000000;
+  --color-finca-green: #2E6B3A;
+  --color-finca-brown: #5A3A1E;
+  --color-finca-beige: #D7B48A;
+  --color-finca-orange-light: #E19A56;
+  --color-finca-orange-dark: #C96E2D;
+  --color-finca-yellow: #F3B94D;
+  --color-finca-beige-text: #C7B199;
+}

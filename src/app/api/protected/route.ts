@@ -26,7 +26,6 @@ export async function GET(request: NextRequest) {
     user: {
       userId: payload.userId,
       username: payload.username,
-      rol: payload.rol,
     },
   });
 }

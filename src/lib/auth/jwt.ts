@@ -9,7 +9,6 @@ export async function generateAccessToken(user: User): Promise<string> {
   const token = await new SignJWT({
     userId: user.id,
     username: user.username,
-    rol: user.rol,
     type: 'access',
   })
     .setProtectedHeader({ alg: 'HS256' })
@@ -24,7 +23,6 @@ export async function generateRefreshToken(user: User): Promise<string> {
   const token = await new SignJWT({
     userId: user.id,
     username: user.username,
-    rol: user.rol,
     type: 'refresh',
   })
     .setProtectedHeader({ alg: 'HS256' })

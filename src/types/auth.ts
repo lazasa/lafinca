@@ -1,8 +1,6 @@
 export interface User {
   id: string;
   username: string;
-  nombre: string;
-  rol: string;
 }
 
 export interface AuthTokens {
@@ -13,7 +11,6 @@ export interface AuthTokens {
 export interface TokenPayload {
   userId: string;
   username: string;
-  rol: string;
   type: 'access' | 'refresh';
   iat: number;
   exp: number;

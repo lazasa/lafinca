@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyRefreshToken, generateAccessToken } from '@/lib/auth/jwt';
 import { authConfig, validateAuthConfig } from '@/lib/config/auth';
-import { getUserByUsername } from '@/lib/db/users';
+import { getUserById } from '@/lib/db/users';
 import type { AuthResponse } from '@/types/auth';
 
 export async function POST(request: NextRequest) {
@@ -32,9 +32,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const userRecord = getUserByUsername(payload.username);
+    const user = await getUserById(payload.userId);
 
-    if (!userRecord) {
+    if (!user) {
       return NextResponse.json<AuthResponse>(
         {
           success: false,
@@ -44,12 +44,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const newAccessToken = await generateAccessToken(userRecord.user);
+    const newAccessToken = await generateAccessToken(user);
 
     return NextResponse.json<AuthResponse>({
       success: true,
       accessToken: newAccessToken,
-      user: userRecord.user,
+      user,
     });
   } catch (error) {
     console.error('Refresh token error:', error);

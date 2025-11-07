@@ -41,7 +41,8 @@ export default function Dashboard() {
                 Dashboard
               </h1>
               <p className="text-finca-brown">
-                Bienvenido, <span className="font-semibold">{user.nombre}</span>
+                Bienvenido,{" "}
+                <span className="font-semibold">{user.username}</span>
               </p>
             </div>
             <button
@@ -52,26 +53,12 @@ export default function Dashboard() {
             </button>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 gap-6">
             <div className="bg-finca-beige/20 rounded-lg p-6 border border-finca-beige">
               <h3 className="text-lg font-semibold text-finca-brown mb-2">
                 Usuario
               </h3>
               <p className="text-finca-brown">{user.username}</p>
-            </div>
-
-            <div className="bg-finca-beige/20 rounded-lg p-6 border border-finca-beige">
-              <h3 className="text-lg font-semibold text-finca-brown mb-2">
-                Nombre
-              </h3>
-              <p className="text-finca-brown">{user.nombre}</p>
-            </div>
-
-            <div className="bg-finca-beige/20 rounded-lg p-6 border border-finca-beige">
-              <h3 className="text-lg font-semibold text-finca-brown mb-2">
-                Rol
-              </h3>
-              <p className="text-finca-brown capitalize">{user.rol}</p>
             </div>
           </div>
 

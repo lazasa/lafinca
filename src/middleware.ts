@@ -5,7 +5,7 @@ export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   const isPublicPath = (pathname: string) => ['/'].includes(pathname);
-  const isProtectedPath = (pathname: string) => ['/dashboard'].includes(pathname);
+  const isProtectedPath = (pathname: string) => ['/dashboard', '/calendar'].includes(pathname);
 
   if (isPublicPath(pathname)) {
     return NextResponse.next();

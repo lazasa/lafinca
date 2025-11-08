@@ -9,7 +9,6 @@ export async function POST(request: NextRequest) {
     validateAuthConfig();
 
     const body = await request.json();
-    
     const validationResult = loginSchema.safeParse(body);
     
     if (!validationResult.success) {
@@ -48,11 +47,10 @@ export async function POST(request: NextRequest) {
 
     return response;
   } catch (error) {
-    console.error('Login error:', error);
     return NextResponse.json<AuthResponse>(
       {
         success: false,
-        error: 'Error al procesar la solicitud',
+        error: `Error al procesar la solicitud ${error}`,
       },
       { status: 500 }
     );

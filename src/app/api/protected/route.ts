@@ -1,20 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { verifyAccessToken } from '@/lib/auth/jwt';
+import { checkAccess } from '@/lib/auth/check';
 
 export async function GET(request: NextRequest) {
-  const authHeader = request.headers.get('authorization');
-
-  if (!authHeader?.startsWith('Bearer ')) {
-    return NextResponse.json(
-      { error: 'Token no proporcionado' },
-      { status: 401 }
-    );
-  }
-
-  const token = authHeader.substring(7);
-  const payload = await verifyAccessToken(token);
-
-  if (!payload || payload.type !== 'access') {
+  const payload = await checkAccess(request);
+  
+  if (!payload) {
     return NextResponse.json(
       { error: 'Token inválido o expirado' },
       { status: 401 }

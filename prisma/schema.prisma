@@ -11,6 +11,7 @@ model User {
   id        String   @id @default(cuid())
   username  String   @unique
   password  String
+  color     String   @default("#2E6B3A")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   rentals   Rental[]

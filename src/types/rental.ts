@@ -3,6 +3,7 @@ export interface Rental {
   date: string;
   userId: string;
   username: string;
+  userColor: string;
   createdAt: string;
   updatedAt: string;
 }

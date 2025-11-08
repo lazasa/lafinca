@@ -19,6 +19,7 @@ export async function authenticateUser(credentials: LoginCredentials): Promise<{
   const userWithoutPassword = {
     id: user.id,
     username: user.username,
+    color: user.color,
   };
 
   const tokens = await generateTokens(userWithoutPassword);

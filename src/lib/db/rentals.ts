@@ -16,6 +16,7 @@ export async function getRentals(startDate?: Date, endDate?: Date) {
       user: {
         select: {
           username: true,
+          color: true,
         },
       },
     },
@@ -35,6 +36,7 @@ export async function createRental(date: Date, userId: string) {
       user: {
         select: {
           username: true,
+          color: true,
         },
       },
     },
@@ -62,6 +64,7 @@ export async function getRentalByDateAndUser(date: Date, userId: string) {
       user: {
         select: {
           username: true,
+          color: true,
         },
       },
     },

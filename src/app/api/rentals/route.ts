@@ -41,6 +41,7 @@ export async function GET(request: NextRequest) {
       date: rental.date.toISOString(),
       userId: rental.userId,
       username: rental.user.username,
+      userColor: rental.user.color,
       createdAt: rental.createdAt.toISOString(),
       updatedAt: rental.updatedAt.toISOString(),
     }));
@@ -91,6 +92,7 @@ export async function POST(request: NextRequest) {
         date: rental.date.toISOString(),
         userId: rental.userId,
         username: rental.user.username,
+        userColor: rental.user.color,
         createdAt: rental.createdAt.toISOString(),
         updatedAt: rental.updatedAt.toISOString(),
       },

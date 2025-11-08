@@ -65,19 +65,17 @@ export default function CalendarPage() {
   const handleDayClick = async (day: number) => {
     if (!accessToken || !user) return;
 
-    const clickedDate = new Date(
-      currentDate.getFullYear(),
-      currentDate.getMonth(),
-      day
-    );
-    clickedDate.setHours(0, 0, 0, 0);
+    const year = currentDate.getFullYear();
+    const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+    const dayStr = String(day).padStart(2, '0');
+    const dateString = `${year}-${month}-${dayStr}`;
 
     const existingRental = rentals.find((rental) => {
       const rentalDate = new Date(rental.date);
       return (
-        rentalDate.getDate() === day &&
-        rentalDate.getMonth() === currentDate.getMonth() &&
-        rentalDate.getFullYear() === currentDate.getFullYear() &&
+        rentalDate.getUTCDate() === day &&
+        rentalDate.getUTCMonth() === currentDate.getMonth() &&
+        rentalDate.getUTCFullYear() === currentDate.getFullYear() &&
         rental.userId === user.id
       );
     });
@@ -90,7 +88,7 @@ export default function CalendarPage() {
             "Content-Type": "application/json",
             Authorization: `Bearer ${accessToken}`,
           },
-          body: JSON.stringify({ date: clickedDate.toISOString() }),
+          body: JSON.stringify({ date: `${dateString}T00:00:00.000Z` }),
         });
 
         if (response.ok) {
@@ -105,7 +103,7 @@ export default function CalendarPage() {
             "Content-Type": "application/json",
             Authorization: `Bearer ${accessToken}`,
           },
-          body: JSON.stringify({ date: clickedDate.toISOString() }),
+          body: JSON.stringify({ date: `${dateString}T00:00:00.000Z` }),
         });
 
         if (response.ok) {
@@ -124,11 +122,27 @@ export default function CalendarPage() {
     return rentals.filter((rental) => {
       const rentalDate = new Date(rental.date);
       return (
-        rentalDate.getDate() === day &&
-        rentalDate.getMonth() === currentDate.getMonth() &&
-        rentalDate.getFullYear() === currentDate.getFullYear()
+        rentalDate.getUTCDate() === day &&
+        rentalDate.getUTCMonth() === currentDate.getMonth() &&
+        rentalDate.getUTCFullYear() === currentDate.getFullYear()
       );
     });
+  };
+
+  const getUniqueUsers = () => {
+    const uniqueUsersMap = new Map<
+      string,
+      { username: string; color: string }
+    >();
+    rentals.forEach((rental) => {
+      if (!uniqueUsersMap.has(rental.userId)) {
+        uniqueUsersMap.set(rental.userId, {
+          username: rental.username,
+          color: rental.userColor,
+        });
+      }
+    });
+    return Array.from(uniqueUsersMap.values());
   };
 
   const renderCalendar = () => {
@@ -169,11 +183,8 @@ export default function CalendarPage() {
               {dayRentals.map((rental) => (
                 <div
                   key={rental.id}
-                  className={`text-xs rounded px-1 py-0.5 truncate font-medium ${
-                    rental.userId === user?.id
-                      ? "bg-finca-green text-white"
-                      : "bg-finca-orange-dark text-white"
-                  }`}
+                  className="text-xs rounded px-1 py-0.5 truncate font-medium text-white"
+                  style={{ backgroundColor: rental.userColor }}
                   title={rental.username}
                 >
                   {rental.username}
@@ -237,20 +248,18 @@ export default function CalendarPage() {
             {renderCalendar()}
           </div>
           <div className="mt-8 p-6 bg-finca-beige/10 rounded-lg border border-finca-beige">
-            <h3 className="text-xl font-semibold text-finca-brown mb-4">
-              Leyenda:
-            </h3>
-            <div className="space-y-2 text-sm">
-              <div className="flex items-center gap-3">
-                <div className="w-6 h-6 bg-finca-orange-light/30 border border-finca-beige rounded"></div>
-                <span className="text-finca-brown">Día reservado</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className="w-6 h-6 bg-finca-orange-light/30 border border-finca-beige rounded ring-2 ring-finca-green"></div>
-                <span className="text-finca-brown font-semibold">
-                  Tu reserva
-                </span>
-              </div>
+            <div className="flex flex-wrap gap-3">
+              {getUniqueUsers().map((user) => (
+                <div key={user.username} className="flex items-center gap-2">
+                  <div
+                    className="w-6 h-6 rounded border border-finca-beige"
+                    style={{ backgroundColor: user.color }}
+                  ></div>
+                  <span className="text-sm text-finca-brown">
+                    {user.username}
+                  </span>
+                </div>
+              ))}
             </div>
           </div>
         </div>

@@ -4,7 +4,6 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Rental } from "@/types/rental";
 import { useCallback, useState } from "react";
 import { useEffect } from "react";
-import { set } from "zod";
 
 export function useRentals() {
   const [rentals, setRentals] = useState<Rental[]>([]);

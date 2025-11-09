@@ -27,6 +27,7 @@ interface CalendarProps {
   currentUserId?: string;
   loading?: boolean;
   compact?: boolean;
+  onDeleteRental?: (rentalId: string) => void;
 }
 
 export default function Calendar({
@@ -37,6 +38,7 @@ export default function Calendar({
   currentUserId,
   loading = false,
   compact = false,
+  onDeleteRental,
 }: CalendarProps) {
   const getDaysInMonth = (date: Date) => {
     const year = date.getFullYear();
@@ -63,17 +65,40 @@ export default function Calendar({
   const getUniqueUsers = () => {
     const uniqueUsersMap = new Map<
       string,
-      { username: string; color: string }
+      { username: string; color: string; rentals: Rental[] }
     >();
     rentals.forEach((rental) => {
       if (!uniqueUsersMap.has(rental.userId)) {
         uniqueUsersMap.set(rental.userId, {
           username: rental.username,
           color: rental.userColor,
+          rentals: [],
         });
       }
+      uniqueUsersMap.get(rental.userId)!.rentals.push(rental);
     });
     return Array.from(uniqueUsersMap.values());
+  };
+
+  const formatDate = (date: string) => {
+    const d = new Date(date);
+    return d.toLocaleDateString("es-AR", {
+      weekday: "short",
+      day: "numeric",
+      month: "short",
+    });
+  };
+
+  const formatTime = (hour: number) => {
+    return `${String(hour).padStart(2, "0")}:00`;
+  };
+
+  const handleDeleteRental = (rentalId: string) => {
+    if (onDeleteRental) {
+      if (confirm("¿Estás seguro de que deseas eliminar esta reserva?")) {
+        onDeleteRental(rentalId);
+      }
+    }
   };
 
   const renderCalendar = () => {
@@ -171,20 +196,63 @@ export default function Calendar({
       <div className="grid grid-cols-7 gap-0 border-2 border-finca-beige rounded-lg overflow-hidden">
         {renderCalendar()}
       </div>
-      <div className="mt-6 sm:mt-8 p-4 sm:p-6 bg-finca-beige/10 rounded-lg border border-finca-beige">
-        <div className="flex flex-wrap gap-2 sm:gap-3">
-          {getUniqueUsers().map((user) => (
-            <div key={user.username} className="flex items-center gap-2">
+      <div className="mt-6 sm:mt-8 space-y-4">
+        {getUniqueUsers().map((user) => (
+          <div
+            key={user.username}
+            className="bg-finca-beige/10 rounded-lg border border-finca-beige overflow-hidden"
+          >
+            <div className="bg-finca-beige/30 px-4 py-3 border-b border-finca-beige flex items-center gap-2">
               <div
                 className="w-5 h-5 sm:w-6 sm:h-6 rounded border border-finca-beige"
                 style={{ backgroundColor: user.color }}
               ></div>
-              <span className="text-xs sm:text-sm text-finca-brown">
+              <span className="text-sm sm:text-base font-semibold text-finca-brown">
                 {user.username}
               </span>
+              <span className="text-xs sm:text-sm text-finca-beige-text ml-auto">
+                {user.rentals.length}{" "}
+                {user.rentals.length === 1 ? "reserva" : "reservas"}
+              </span>
             </div>
-          ))}
-        </div>
+            <div className="p-4 space-y-3">
+              {user.rentals.map((rental) => (
+                <div
+                  key={rental.id}
+                  className="bg-white rounded-lg border border-finca-beige p-3 sm:p-4 hover:border-finca-orange-light transition-colors duration-200"
+                >
+                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 sm:gap-4">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="text-xs sm:text-sm font-semibold text-finca-green">
+                          {formatDate(rental.date)}
+                        </span>
+                        <span className="text-xs text-finca-beige-text">
+                          {formatTime(rental.startHour)} -{" "}
+                          {formatTime(rental.endHour)}
+                        </span>
+                      </div>
+                      {rental.notes && (
+                        <p className="text-xs sm:text-sm text-finca-brown mt-2">
+                          {rental.notes}
+                        </p>
+                      )}
+                    </div>
+                    {onDeleteRental && currentUserId === rental.userId && (
+                      <button
+                        onClick={() => handleDeleteRental(rental.id)}
+                        className="cursor-pointer self-end sm:self-start px-3 py-1.5 text-xs sm:text-sm bg-red-50 text-red-600 rounded-lg font-medium hover:bg-red-100 transition-colors duration-200 border border-red-200"
+                        title="Eliminar reserva"
+                      >
+                        Eliminar
+                      </button>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );

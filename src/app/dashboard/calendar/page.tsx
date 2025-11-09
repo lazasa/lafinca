@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
 import { useRentals } from "@/hooks/useRentals";
+import { useAuthenticatedFetch } from "@/hooks/useAuthenticatedFetch";
 import Calendar from "@/components/Calendar";
 import CreateRental from "@/components/CreateRental";
 
@@ -12,6 +13,7 @@ export default function CalendarPage() {
   const router = useRouter();
   const { rentals, loadingRentals, currentDate, setCurrentDate, fetchRentals } =
     useRentals();
+  const authenticatedFetch = useAuthenticatedFetch();
 
   useEffect(() => {
     if (!isLoading && !user) {
@@ -35,6 +37,31 @@ export default function CalendarPage() {
     fetchRentals();
   };
 
+  const handleDeleteRental = async (rentalId: string) => {
+    try {
+      const rental = rentals.find((r) => r.id === rentalId);
+      if (!rental) return;
+
+      const response = await authenticatedFetch("/api/rentals", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ date: rental.date }),
+      });
+
+      if (response.ok) {
+        fetchRentals();
+      } else {
+        const errorData = await response.json();
+        alert(errorData.error || "Error al eliminar la reserva");
+      }
+    } catch (error) {
+      console.error("Error deleting rental:", error);
+      alert("Error al eliminar la reserva");
+    }
+  };
+
   if (isLoading || !user) {
     return (
       <main className="min-h-screen flex items-center justify-center bg-finca-black">
@@ -55,6 +82,7 @@ export default function CalendarPage() {
               onNextMonth={handleNextMonth}
               currentUserId={user.id}
               loading={loadingRentals}
+              onDeleteRental={handleDeleteRental}
             />
           </div>
           <div className="lg:col-span-1">

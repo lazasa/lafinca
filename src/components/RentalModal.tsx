@@ -12,6 +12,8 @@ interface RentalModalProps {
     endHour: number;
     notes?: string;
   };
+  allowDateSelection?: boolean;
+  onDateChange?: (date: Date) => void;
 }
 
 export default function RentalModal({
@@ -20,10 +22,13 @@ export default function RentalModal({
   onSave,
   date,
   existingRental,
+  allowDateSelection = false,
+  onDateChange,
 }: RentalModalProps) {
   const [startHour, setStartHour] = useState(existingRental?.startHour || 8);
   const [endHour, setEndHour] = useState(existingRental?.endHour || 20);
   const [notes, setNotes] = useState(existingRental?.notes || "");
+  const [selectedDate, setSelectedDate] = useState(date || new Date());
 
   if (!isOpen || !date) return null;
 
@@ -44,6 +49,21 @@ export default function RentalModal({
     });
   };
 
+  const formatDateInput = (date: Date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
+
+  const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newDate = new Date(e.target.value + "T00:00:00");
+    setSelectedDate(newDate);
+    if (onDateChange) {
+      onDateChange(newDate);
+    }
+  };
+
   const hours = Array.from({ length: 24 }, (_, i) => i);
 
   return (
@@ -52,11 +72,26 @@ export default function RentalModal({
         <h2 className="text-xl sm:text-2xl font-bold text-finca-green mb-2">
           Reservar día
         </h2>
-        <p className="text-sm sm:text-base text-finca-brown mb-6 capitalize">
-          {formatDate(date)}
-        </p>
+        {!allowDateSelection && date && (
+          <p className="text-sm sm:text-base text-finca-brown mb-6 capitalize">
+            {formatDate(date)}
+          </p>
+        )}
 
         <div className="space-y-4 sm:space-y-6">
+          {allowDateSelection && (
+            <div>
+              <label className="block text-sm font-medium text-finca-brown mb-2">
+                Fecha
+              </label>
+              <input
+                type="date"
+                value={formatDateInput(selectedDate)}
+                onChange={handleDateChange}
+                className="w-full py-2 sm:py-3 px-3 sm:px-4 border border-finca-beige rounded-lg focus:outline-none focus:ring-2 focus:ring-finca-green text-finca-brown text-sm sm:text-base"
+              />
+            </div>
+          )}
           <div>
             <label className="block text-sm font-medium text-finca-brown mb-2">
               Hora de inicio

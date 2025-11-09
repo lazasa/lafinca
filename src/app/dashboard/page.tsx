@@ -3,10 +3,13 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
+import { useRentals } from "@/hooks/useRentals";
+import Calendar from "@/components/Calendar";
 
 export default function Dashboard() {
   const { user, isLoading, logout } = useAuth();
   const router = useRouter();
+  const { rentals, loadingRentals, currentDate, setCurrentDate } = useRentals();
 
   useEffect(() => {
     if (!isLoading && !user) {
@@ -17,6 +20,18 @@ export default function Dashboard() {
   const handleLogout = async () => {
     await logout();
     router.push("/");
+  };
+
+  const handlePreviousMonth = () => {
+    setCurrentDate(
+      new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1)
+    );
+  };
+
+  const handleNextMonth = () => {
+    setCurrentDate(
+      new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1)
+    );
   };
 
   if (isLoading) {
@@ -34,48 +49,37 @@ export default function Dashboard() {
   return (
     <main className="min-h-screen bg-finca-black">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="bg-white rounded-2xl shadow-2xl p-8">
-          <div className="flex justify-between items-start mb-8">
-            <div>
-              <h1 className="text-4xl font-bold text-finca-green mb-2">
-                Dashboard
-              </h1>
-              <p className="text-finca-brown">
-                Bienvenido,{" "}
-                <span className="font-semibold">{user.username}</span>
-              </p>
-            </div>
-            <button
-              onClick={handleLogout}
-              className="bg-finca-brown text-white px-6 py-2 rounded-lg font-semibold hover:bg-finca-orange-dark transition-colors duration-200"
-            >
-              Cerrar sesión
-            </button>
-          </div>
-
-          <div className="grid grid-cols-1 gap-6">
-            <div className="bg-finca-beige/20 rounded-lg p-6 border border-finca-beige">
-              <h3 className="text-lg font-semibold text-finca-brown mb-2">
-                Usuario
-              </h3>
-              <p className="text-finca-brown">{user.username}</p>
-            </div>
-          </div>
-
-          <div className="mt-8 bg-finca-green/10 rounded-lg p-6 border border-finca-green">
-            <h3 className="text-lg font-semibold text-finca-green mb-2">
-              Estado de Autenticación
-            </h3>
-            <p className="text-finca-brown mb-4">
-              Tu sesión está activa y el token de acceso se actualiza
-              automáticamente cada 14 minutos.
-            </p>
-            <div className="flex items-center text-finca-green">
-              <div className="w-2 h-2 bg-finca-green rounded-full mr-2"></div>
-              <span className="text-sm font-medium">Conectado</span>
+        <div className="mb-6">
+          <div className="bg-white rounded-2xl shadow-2xl p-8">
+            <div className="flex justify-between items-start mb-8">
+              <div>
+                <h1 className="text-4xl font-bold text-finca-green mb-2">
+                  Administración
+                </h1>
+                <p className="text-finca-brown">
+                  Bienvenido,{" "}
+                  <span className="font-semibold">{user.username}</span>
+                </p>
+              </div>
+              <button
+                onClick={handleLogout}
+                className="cursor-pointer bg-finca-brown text-white px-6 py-2 rounded-lg font-semibold hover:bg-finca-orange-dark transition-colors duration-200"
+              >
+                Cerrar sesión
+              </button>
             </div>
           </div>
         </div>
+
+        <Calendar
+          currentDate={currentDate}
+          rentals={rentals}
+          onPreviousMonth={handlePreviousMonth}
+          onNextMonth={handleNextMonth}
+          currentUserId={user.id}
+          loading={loadingRentals}
+          compact={true}
+        />
       </div>
     </main>
   );

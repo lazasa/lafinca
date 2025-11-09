@@ -51,5 +51,5 @@ export function useRentals() {
     fetchRentals();
   }, [fetchRentals]);
 
-  return { rentals, loadingRentals, currentDate, setCurrentDate, updateRentals: setRentals };
+  return { rentals, loadingRentals, currentDate, setCurrentDate, updateRentals: setRentals, fetchRentals };
 }

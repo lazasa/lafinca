@@ -1,6 +1,9 @@
 export interface Rental {
   id: string;
   date: string;
+  startHour: number;
+  endHour: number;
+  notes?: string;
   userId: string;
   username: string;
   userColor: string;
@@ -10,6 +13,9 @@ export interface Rental {
 
 export interface CreateRentalRequest {
   date: string;
+  startHour?: number;
+  endHour?: number;
+  notes?: string;
 }
 
 export interface DeleteRentalRequest {

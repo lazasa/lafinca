@@ -39,6 +39,9 @@ export async function GET(request: NextRequest) {
     const formattedRentals = rentals.map((rental) => ({
       id: rental.id,
       date: rental.date.toISOString(),
+      startHour: rental.startHour,
+      endHour: rental.endHour,
+      notes: rental.notes || undefined,
       userId: rental.userId,
       username: rental.user.username,
       userColor: rental.user.color,
@@ -83,13 +86,22 @@ export async function POST(request: NextRequest) {
     const date = new Date(validation.data.date);
     date.setUTCHours(0, 0, 0, 0);
 
-    const rental = await createRental(date, payload.userId);
+    const rental = await createRental(
+      date,
+      payload.userId,
+      validation.data.startHour,
+      validation.data.endHour,
+      validation.data.notes
+    );
 
     return NextResponse.json<CreateRentalResponse>({
       success: true,
       rental: {
         id: rental.id,
         date: rental.date.toISOString(),
+        startHour: rental.startHour,
+        endHour: rental.endHour,
+        notes: rental.notes || undefined,
         userId: rental.userId,
         username: rental.user.username,
         userColor: rental.user.color,

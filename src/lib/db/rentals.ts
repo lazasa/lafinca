@@ -26,11 +26,20 @@ export async function getRentals(startDate?: Date, endDate?: Date) {
   });
 }
 
-export async function createRental(date: Date, userId: string) {
+export async function createRental(
+  date: Date,
+  userId: string,
+  startHour: number = 8,
+  endHour: number = 20,
+  notes?: string
+) {
   return await prisma.rental.create({
     data: {
       date,
       userId,
+      startHour,
+      endHour,
+      notes,
     },
     include: {
       user: {

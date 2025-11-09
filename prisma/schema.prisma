@@ -22,6 +22,9 @@ model User {
 model Rental {
   id        String   @id @default(cuid())
   date      DateTime @db.Date
+  startHour Int      @default(8)
+  endHour   Int      @default(20)
+  notes     String?
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())

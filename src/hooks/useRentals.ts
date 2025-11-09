@@ -1,6 +1,7 @@
 'use client'
 
 import { useAuth } from "@/contexts/AuthContext";
+import { useAuthenticatedFetch } from "@/hooks/useAuthenticatedFetch";
 import { Rental } from "@/types/rental";
 import { useCallback, useState } from "react";
 import { useEffect } from "react";
@@ -11,6 +12,7 @@ export function useRentals() {
   const [loadingRentals, setLoadingRentals] = useState(true);
 
   const { accessToken } = useAuth();
+  const authenticatedFetch = useAuthenticatedFetch();
 
   const fetchRentals = useCallback(async () => {
     if (!accessToken) return;
@@ -28,13 +30,8 @@ export function useRentals() {
         0
       );
 
-      const response = await fetch(
-        `/api/rentals?startDate=${startOfMonth.toISOString()}&endDate=${endOfMonth.toISOString()}`,
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        }
+      const response = await authenticatedFetch(
+        `/api/rentals?startDate=${startOfMonth.toISOString()}&endDate=${endOfMonth.toISOString()}`
       );
 
       if (response.ok) {
@@ -48,7 +45,7 @@ export function useRentals() {
     } finally {
       setLoadingRentals(false);
     }
-  }, [accessToken, currentDate]);
+  }, [accessToken, authenticatedFetch, currentDate]);
 
   useEffect(() => {
     fetchRentals();

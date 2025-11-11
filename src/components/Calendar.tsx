@@ -104,6 +104,8 @@ export default function Calendar({
   const renderCalendar = () => {
     const { daysInMonth, startingDayOfWeek } = getDaysInMonth(currentDate);
     const days = [];
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
 
     for (let i = 0; i < startingDayOfWeek; i++) {
       days.push(
@@ -121,14 +123,37 @@ export default function Calendar({
         currentUserId &&
         dayRentals.some((rental) => rental.userId === currentUserId);
 
+      const cellDate = new Date(
+        currentDate.getFullYear(),
+        currentDate.getMonth(),
+        day
+      );
+      cellDate.setHours(0, 0, 0, 0);
+      const isPast = cellDate < today;
+      const isToday = cellDate.getTime() === today.getTime();
+
       days.push(
         <div
           key={day}
-          className={`aspect-square p-1 sm:p-2 md:p-3 border border-finca-beige ${
-            isRented ? "bg-finca-orange-light/30" : "bg-white"
-          } ${isCurrentUserRental ? "ring-2 ring-finca-green" : ""}`}
+          className={`aspect-square p-1 sm:p-2 md:p-3 border ${
+            isToday ? "border-finca-yellow border-2" : "border-finca-beige"
+          } ${
+            isRented
+              ? isPast
+                ? "bg-finca-beige/30"
+                : "bg-finca-orange-light/30"
+              : isToday
+              ? "bg-finca-yellow/10"
+              : "bg-white"
+          } ${isCurrentUserRental ? "ring-2 ring-finca-green" : ""} ${
+            isPast && isRented ? "opacity-50" : ""
+          }`}
         >
-          <div className="text-xs sm:text-sm md:text-base font-semibold text-finca-brown">
+          <div
+            className={`text-xs sm:text-sm md:text-base font-semibold ${
+              isToday ? "text-finca-green" : "text-finca-brown"
+            }`}
+          >
             {day}
           </div>
           {isRented && (
@@ -216,40 +241,56 @@ export default function Calendar({
               </span>
             </div>
             <div className="p-4 space-y-3">
-              {user.rentals.map((rental) => (
-                <div
-                  key={rental.id}
-                  className="bg-white rounded-lg border border-finca-beige p-3 sm:p-4 hover:border-finca-orange-light transition-colors duration-200"
-                >
-                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 sm:gap-4">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className="text-xs sm:text-sm font-semibold text-finca-green">
-                          {formatDate(rental.date)}
-                        </span>
-                        <span className="text-xs text-finca-beige-text">
-                          {formatTime(rental.startHour)} -{" "}
-                          {formatTime(rental.endHour)}
-                        </span>
+              {user.rentals.map((rental) => {
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                const rentalDate = new Date(rental.date);
+                rentalDate.setHours(0, 0, 0, 0);
+                const isPastRental = rentalDate < today;
+
+                return (
+                  <div
+                    key={rental.id}
+                    className={`bg-white rounded-lg border border-finca-beige p-3 sm:p-4 hover:border-finca-orange-light transition-colors duration-200 ${
+                      isPastRental ? "opacity-50" : ""
+                    }`}
+                  >
+                    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 sm:gap-4">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-2">
+                          <span
+                            className={`text-xs sm:text-sm font-semibold ${
+                              isPastRental
+                                ? "text-finca-beige-text"
+                                : "text-finca-green"
+                            }`}
+                          >
+                            {formatDate(rental.date)}
+                          </span>
+                          <span className="text-xs text-finca-beige-text">
+                            {formatTime(rental.startHour)} -{" "}
+                            {formatTime(rental.endHour)}
+                          </span>
+                        </div>
+                        {rental.notes && (
+                          <p className="text-xs sm:text-sm text-finca-brown mt-2">
+                            {rental.notes}
+                          </p>
+                        )}
                       </div>
-                      {rental.notes && (
-                        <p className="text-xs sm:text-sm text-finca-brown mt-2">
-                          {rental.notes}
-                        </p>
+                      {onDeleteRental && currentUserId === rental.userId && (
+                        <button
+                          onClick={() => handleDeleteRental(rental.id)}
+                          className="cursor-pointer self-end sm:self-start px-3 py-1.5 text-xs sm:text-sm bg-red-50 text-red-600 rounded-lg font-medium hover:bg-red-100 transition-colors duration-200 border border-red-200"
+                          title="Eliminar reserva"
+                        >
+                          Eliminar
+                        </button>
                       )}
                     </div>
-                    {onDeleteRental && currentUserId === rental.userId && (
-                      <button
-                        onClick={() => handleDeleteRental(rental.id)}
-                        className="cursor-pointer self-end sm:self-start px-3 py-1.5 text-xs sm:text-sm bg-red-50 text-red-600 rounded-lg font-medium hover:bg-red-100 transition-colors duration-200 border border-red-200"
-                        title="Eliminar reserva"
-                      >
-                        Eliminar
-                      </button>
-                    )}
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         ))}

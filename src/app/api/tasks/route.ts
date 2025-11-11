@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createTask, listTasks, updateTaskStatus } from "@/lib/db/tasks";
+import { createTask, listTasks, updateTaskStatus, deleteTask } from "@/lib/db/tasks";
 import { createTaskSchema, updateTaskStatusSchema } from "@/lib/validations/task";
 import { checkAccess } from "@/lib/auth/check";
 import { TaskStatus } from "@prisma/client";
@@ -204,6 +204,44 @@ export async function PATCH(request: NextRequest) {
     console.error("Error updating task:", error);
     return NextResponse.json<UpdateTaskResponse>(
       { success: false, error: "Error al actualizar la tarea" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(request: NextRequest) {
+  try {
+    const payload = await checkAccess(request);
+
+    if (!payload) {
+      return NextResponse.json(
+        { success: false, error: "Token inválido" },
+        { status: 401 }
+      );
+    }
+
+    const { searchParams } = new URL(request.url);
+    const status = searchParams.get("status");
+
+    if (status !== "COMPLETADA") {
+      return NextResponse.json(
+        { success: false, error: "Solo se pueden eliminar tareas completadas" },
+        { status: 400 }
+      );
+    }
+
+    const tasks = await listTasks(TaskStatus.COMPLETADA);
+    
+    await Promise.all(tasks.map(task => deleteTask(task.id)));
+
+    return NextResponse.json({
+      success: true,
+      message: `${tasks.length} tareas eliminadas`,
+    });
+  } catch (error) {
+    console.error("Error deleting completed tasks:", error);
+    return NextResponse.json(
+      { success: false, error: "Error al eliminar las tareas" },
       { status: 500 }
     );
   }

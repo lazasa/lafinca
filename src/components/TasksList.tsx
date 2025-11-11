@@ -88,6 +88,37 @@ export default function TasksList({
     }
   };
 
+  const handleDeleteCompleted = async () => {
+    if (completedTasks.length === 0) return;
+
+    if (
+      !confirm(
+        `¿Estás seguro de que deseas eliminar todas las ${completedTasks.length} tareas completadas?`
+      )
+    ) {
+      return;
+    }
+
+    try {
+      const response = await authenticatedFetch(
+        "/api/tasks?status=COMPLETADA",
+        {
+          method: "DELETE",
+        }
+      );
+
+      if (response.ok) {
+        onTaskUpdate();
+      } else {
+        const errorData = await response.json();
+        alert(errorData.error || "Error al eliminar las tareas");
+      }
+    } catch (error) {
+      console.error("Error deleting completed tasks:", error);
+      alert("Error al eliminar las tareas");
+    }
+  };
+
   if (loading) {
     return (
       <div className="bg-white rounded-2xl shadow-2xl p-8">
@@ -212,40 +243,50 @@ export default function TasksList({
                 No hay tareas completadas
               </p>
             ) : (
-              completedTasks.map((task) => (
-                <div
-                  key={task.id}
-                  className="border border-finca-beige rounded-lg p-4 flex justify-between items-start gap-4 opacity-60"
-                >
-                  <div className="flex-1">
-                    <h4 className="font-semibold text-finca-brown mb-1 line-through">
-                      {task.title}
-                    </h4>
-                    {task.description && (
-                      <p className="text-sm text-finca-brown mb-2 line-through">
-                        {task.description}
-                      </p>
-                    )}
-                    <p className="text-xs text-finca-beige-text">
-                      Creada por{" "}
-                      <span
-                        className="font-semibold"
-                        style={{ color: task.createdBy.color }}
+              <>
+                <div className="space-y-3">
+                  {completedTasks.map((task) => (
+                    <div
+                      key={task.id}
+                      className="border border-finca-beige rounded-lg p-4 flex justify-between items-start gap-4 opacity-60"
+                    >
+                      <div className="flex-1">
+                        <h4 className="font-semibold text-finca-brown mb-1 line-through">
+                          {task.title}
+                        </h4>
+                        {task.description && (
+                          <p className="text-sm text-finca-brown mb-2 line-through">
+                            {task.description}
+                          </p>
+                        )}
+                        <p className="text-xs text-finca-beige-text">
+                          Creada por{" "}
+                          <span
+                            className="font-semibold"
+                            style={{ color: task.createdBy.color }}
+                          >
+                            {task.createdBy.username}
+                          </span>
+                        </p>
+                      </div>
+                      <button
+                        onClick={() =>
+                          handleUpdateStatus(task.id, TaskStatus.PENDIENTE)
+                        }
+                        className="bg-finca-green text-white py-2 px-4 rounded-lg text-sm font-semibold hover:bg-finca-orange-dark transition-colors duration-200 whitespace-nowrap"
                       >
-                        {task.createdBy.username}
-                      </span>
-                    </p>
-                  </div>
-                  <button
-                    onClick={() =>
-                      handleUpdateStatus(task.id, TaskStatus.PENDIENTE)
-                    }
-                    className="bg-finca-green text-white py-2 px-4 rounded-lg text-sm font-semibold hover:bg-finca-orange-dark transition-colors duration-200 whitespace-nowrap"
-                  >
-                    Pendiente
-                  </button>
+                        Pendiente
+                      </button>
+                    </div>
+                  ))}
                 </div>
-              ))
+                <button
+                  onClick={handleDeleteCompleted}
+                  className="w-full mt-4 bg-red-50 text-red-600 py-3 px-6 rounded-lg font-semibold hover:bg-red-100 transition-colors duration-200 border border-red-200"
+                >
+                  Eliminar todas las completadas
+                </button>
+              </>
             )}
           </div>
         )}

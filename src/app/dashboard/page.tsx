@@ -4,14 +4,17 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRentals } from "@/hooks/useRentals";
+import { useTasks } from "@/hooks/useTasks";
 import { useAuthenticatedFetch } from "@/hooks/useAuthenticatedFetch";
 import Calendar from "@/components/Calendar";
+import TasksList from "@/components/TasksList";
 
 export default function Dashboard() {
   const { user, isLoading, logout } = useAuth();
   const router = useRouter();
   const { rentals, loadingRentals, currentDate, setCurrentDate, fetchRentals } =
     useRentals();
+  const { tasks, loadingTasks, fetchTasks } = useTasks();
   const authenticatedFetch = useAuthenticatedFetch();
 
   useEffect(() => {
@@ -79,7 +82,7 @@ export default function Dashboard() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-6">
           <div className="bg-white rounded-2xl shadow-2xl p-4 sm:p-6 md:p-8">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-0 sm:mb-8">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-0">
               <div>
                 <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-finca-green mb-2">
                   Administración
@@ -99,16 +102,24 @@ export default function Dashboard() {
           </div>
         </div>
 
-        <Calendar
-          currentDate={currentDate}
-          rentals={rentals}
-          onPreviousMonth={handlePreviousMonth}
-          onNextMonth={handleNextMonth}
-          currentUserId={user.id}
-          loading={loadingRentals}
-          compact={true}
-          onDeleteRental={handleDeleteRental}
-        />
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+          <Calendar
+            currentDate={currentDate}
+            rentals={rentals}
+            onPreviousMonth={handlePreviousMonth}
+            onNextMonth={handleNextMonth}
+            currentUserId={user.id}
+            loading={loadingRentals}
+            compact={true}
+            onDeleteRental={handleDeleteRental}
+          />
+
+          <TasksList
+            tasks={tasks}
+            onTaskUpdate={fetchTasks}
+            loading={loadingTasks}
+          />
+        </div>
       </div>
     </main>
   );

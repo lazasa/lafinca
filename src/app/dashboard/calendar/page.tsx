@@ -64,15 +64,32 @@ export default function CalendarPage() {
 
   if (isLoading || !user) {
     return (
-      <main className="min-h-screen flex items-center justify-center bg-finca-black">
-        <div className="text-white text-xl">Cargando...</div>
+      <main className="min-h-screen flex items-center justify-center bg-white">
+        <div className="text-finca-brown text-xl">Cargando...</div>
       </main>
     );
   }
 
   return (
-    <main className="min-h-screen bg-finca-black">
+    <main className="min-h-screen bg-white">
       <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 py-4 sm:py-8">
+        <div className="mb-6">
+          <button
+            onClick={() => router.push("/dashboard")}
+            className="text-finca-green hover:text-finca-orange-dark font-semibold mb-4 inline-flex items-center gap-2"
+          >
+            ← Volver al inicio
+          </button>
+          <div className="bg-white rounded-2xl shadow-2xl p-4 sm:p-6 md:p-8">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-finca-green mb-2">
+              Calendario de reservas
+            </h1>
+            <p className="text-sm sm:text-base text-finca-brown">
+              Gestiona las reservas de la finca
+            </p>
+          </div>
+        </div>
+
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2">
             <Calendar

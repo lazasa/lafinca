@@ -35,14 +35,14 @@ export default function Home() {
 
   if (isLoading) {
     return (
-      <main className="min-h-screen flex items-center justify-center bg-finca-black">
-        <div className="text-white text-xl">Cargando...</div>
+      <main className="min-h-screen flex items-center justify-center bg-white">
+        <div className="text-finca-brown text-xl">Cargando...</div>
       </main>
     );
   }
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-finca-black">
+    <main className="min-h-screen flex items-center justify-center bg-white">
       <div className="w-full max-w-md px-8">
         <div className="bg-white rounded-2xl shadow-2xl p-8">
           <div className="text-center mb-8">

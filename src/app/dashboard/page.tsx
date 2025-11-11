@@ -5,17 +5,14 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRentals } from "@/hooks/useRentals";
 import { useTasks } from "@/hooks/useTasks";
-import { useAuthenticatedFetch } from "@/hooks/useAuthenticatedFetch";
-import Calendar from "@/components/Calendar";
-import TasksList from "@/components/TasksList";
+import RentalsSummary from "@/components/RentalsSummary";
+import TasksSummary from "@/components/TasksSummary";
 
 export default function Dashboard() {
   const { user, isLoading, logout } = useAuth();
   const router = useRouter();
-  const { rentals, loadingRentals, currentDate, setCurrentDate, fetchRentals } =
-    useRentals();
-  const { tasks, loadingTasks, fetchTasks } = useTasks();
-  const authenticatedFetch = useAuthenticatedFetch();
+  const { rentals, loadingRentals } = useRentals();
+  const { tasks, loadingTasks } = useTasks();
 
   useEffect(() => {
     if (!isLoading && !user) {
@@ -28,47 +25,10 @@ export default function Dashboard() {
     router.push("/");
   };
 
-  const handlePreviousMonth = () => {
-    setCurrentDate(
-      new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1)
-    );
-  };
-
-  const handleNextMonth = () => {
-    setCurrentDate(
-      new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1)
-    );
-  };
-
-  const handleDeleteRental = async (rentalId: string) => {
-    try {
-      const rental = rentals.find((r) => r.id === rentalId);
-      if (!rental) return;
-
-      const response = await authenticatedFetch("/api/rentals", {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ date: rental.date }),
-      });
-
-      if (response.ok) {
-        fetchRentals();
-      } else {
-        const errorData = await response.json();
-        alert(errorData.error || "Error al eliminar la reserva");
-      }
-    } catch (error) {
-      console.error("Error deleting rental:", error);
-      alert("Error al eliminar la reserva");
-    }
-  };
-
   if (isLoading) {
     return (
-      <main className="min-h-screen flex items-center justify-center bg-finca-black">
-        <div className="text-white text-xl">Cargando...</div>
+      <main className="min-h-screen flex items-center justify-center bg-white">
+        <div className="text-finca-brown text-xl">Cargando...</div>
       </main>
     );
   }
@@ -78,7 +38,7 @@ export default function Dashboard() {
   }
 
   return (
-    <main className="min-h-screen bg-finca-black">
+    <main className="min-h-screen bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-6">
           <div className="bg-white rounded-2xl shadow-2xl p-4 sm:p-6 md:p-8">
@@ -102,23 +62,14 @@ export default function Dashboard() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-          <Calendar
-            currentDate={currentDate}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <RentalsSummary
             rentals={rentals}
-            onPreviousMonth={handlePreviousMonth}
-            onNextMonth={handleNextMonth}
             currentUserId={user.id}
             loading={loadingRentals}
-            compact={true}
-            onDeleteRental={handleDeleteRental}
           />
 
-          <TasksList
-            tasks={tasks}
-            onTaskUpdate={fetchTasks}
-            loading={loadingTasks}
-          />
+          <TasksSummary tasks={tasks} loading={loadingTasks} />
         </div>
       </div>
     </main>

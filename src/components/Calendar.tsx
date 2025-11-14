@@ -86,6 +86,7 @@ export default function Calendar({
       weekday: "short",
       day: "numeric",
       month: "short",
+      timeZone: "UTC",
     });
   };
 

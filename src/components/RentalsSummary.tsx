@@ -26,6 +26,7 @@ export default function RentalsSummary({
       day: "numeric",
       month: "short",
       year: "numeric",
+      timeZone: "UTC",
     });
   };
 
